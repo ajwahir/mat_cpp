@@ -1,0 +1,70 @@
+#include <stdio.h>
+#include <iostream>
+#include "opencv2/core/core.hpp"
+#include "opencv2/features2d/features2d.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc_c.h"
+#include "opencv2/nonfree/features2d.hpp"
+#include <opencv2/imgproc/imgproc.hpp>
+#include "opencv2/calib3d/calib3d.hpp"
+#include <math.h>
+#include "cvblob.h"
+
+using namespace cv;
+using namespace std;
+using namespace cvb;
+
+int START_Y = 261;
+int START_X = 61;
+int END_Y = 680;
+int END_X = 960;
+
+int MinorAxisLimit = 63;
+int MajorAxisLimit = 5;
+int OrientationTolerance = 20;
+int BlobWidthLimit = 40; //to be made automatic
+int ViewAngleLimit = 37;
+int CollinearBlobTolerance = 100;
+int MinorBlobGrowLimit = 19;
+int EXPECTED_PATH_THICKNESS = 4;
+int NEAREST_BLOB_FINDING_ATTEMPTS = 100;
+int HALF_PATH_THICKNESS = 2;
+int END_POINT_EXCLUSION_INDEX_PERCENTAGE = 0.02;
+
+int SimpleThreshold = 162;
+
+int main()
+{    Mat SimpleThresholdedImage;
+    Mat ColorTargetImage = imread("scene00001.png",1);
+
+    ColorTargetImage=ColorTargetImage(Rect(START_X,START_Y,END_X-START_X,END_Y-START_Y));
+    Mat bgr_planes[3];
+    split(ColorTargetImage,bgr_planes);
+    ColorTargetImage = bgr_planes[0];
+    namedWindow("ColorTargetImage"); // define the window
+    imshow("ColorTargetImage", ColorTargetImage); // show the image
+
+    int WIDTH = ColorTargetImage.rows, HEIGHT = ColorTargetImage.cols;
+    inRange(ColorTargetImage,Scalar(162,0,0),Scalar(230,0,0),SimpleThresholdedImage);
+  
+    
+    
+    namedWindow("SimpleThresholdedImage"); // define the window
+    imshow("SimpleThresholdedImage", SimpleThresholdedImage); // show the image
+
+findContours(gray,contours,hierarchy,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE,Point(0, 0) );
+for (i=0;i<contours.size();i++)
+{
+(x,y),(MA,ma),angle = cv2.fitEllipse(contour[i]);
+//float Elongation=MA/ma;
+if(MA <MajorAxisLimit || ma<MinorAxisLimit)
+{fillPoly(gray, contour[i], (0,0,0));}
+
+}
+
+
+    waitKey(0);
+    return 0;
+
+
+}
